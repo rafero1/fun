@@ -1,4 +1,5 @@
 from collections import OrderedDict
+import json
 
 
 class Roman:
@@ -86,6 +87,10 @@ class Skill:
         return self.get_value_at_rank(self.rank, stat)
 
 
+class Stats:
+    pass
+
+
 class Actor:
     # resistances
     def __init__(self, name, hp, max_hp, mp, max_mp, str, dex, con, int, wis, cha, skills):
@@ -109,10 +114,10 @@ class Actor:
         return None
 
     def get_stat(self, stat):
-        return self.__getattribute__(stat)
+        return getattr(self, stat)
 
     def set_stat(self, stat, value):
-        return self.__setattr__(stat, value)
+        return setattr(self, stat, value)
 
     def use_skill(self, skill, target):
         if skill.s_type == "attack":
@@ -132,6 +137,16 @@ class Actor:
 
     def dec_mp(self, amount):
         self.mp = max(self.mp - amount, 0)
+
+
+class CombatManager:
+
+    def __init__(self, actors):
+        self.turn = 0
+        self.actors = actors
+
+    def pass_turn(self):
+        self.turn += 1
 
 
 skills = [

@@ -1,0 +1,58 @@
+[
+    {
+        "name": "Fireball",
+        "ranks": [
+            {
+                "expCost": 25,
+                "powerUp": 5
+            },
+            {
+                "expCost": 50,
+                "powerUp": 4
+            },
+            {
+                "expCost": 100,
+                "powerUp": 3
+            }
+        ],
+        "power": 10,
+        "type": "attack",
+        "element": "fire",
+        "cost": 1,
+        "cooldown": 5,
+        "range": 5,
+        "scaling": {
+            "value": 0.2,
+            "attribute": "int"
+        },
+        "description": "A fireball."
+    },
+    {
+        "name": "Fire Shower",
+        "ranks": [
+            {
+                "expCost": 25,
+                "powerUp": 5
+            },
+            {
+                "expCost": 50,
+                "powerUp": 4
+            },
+            {
+                "expCost": 100,
+                "powerUp": 3
+            }
+        ],
+        "power": 20,
+        "type": "attack",
+        "element": "fire",
+        "cost": 3,
+        "cooldown": 10,
+        "range": 5,
+        "scaling": {
+            "value": 0.2,
+            "attribute": "int"
+        },
+        "description": "A shower of fire."
+    }
+]
