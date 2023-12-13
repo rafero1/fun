@@ -1,37 +1,40 @@
 from collections import OrderedDict
 
+
 class Roman:
-    roman = OrderedDict()
-    roman[1000] = "M"
-    roman[900] = "CM"
-    roman[500] = "D"
-    roman[400] = "CD"
-    roman[100] = "C"
-    roman[90] = "XC"
-    roman[50] = "L"
-    roman[40] = "XL"
-    roman[10] = "X"
-    roman[9] = "IX"
-    roman[5] = "V"
-    roman[4] = "IV"
-    roman[1] = "I"
+    letters = OrderedDict()
+    letters[1000] = "M"
+    letters[900] = "CM"
+    letters[500] = "D"
+    letters[400] = "CD"
+    letters[100] = "C"
+    letters[90] = "XC"
+    letters[50] = "L"
+    letters[40] = "XL"
+    letters[10] = "X"
+    letters[9] = "IX"
+    letters[5] = "V"
+    letters[4] = "IV"
+    letters[1] = "I"
 
     @staticmethod
     def write(num):
         def roman_num(num):
-            for r in Roman.roman.keys():
-                x, y = divmod(num, r)
-                yield Roman.roman[r] * x
-                num -= (r * x)
+            for key, value in Roman.letters.items():
+                x, _ = divmod(num, key)
+                yield value * x
+                num -= (key * x)
                 if num <= 0:
                     break
 
-        return "".join([a for a in roman_num(num)])
+        return "".join(list(roman_num(num)))
+
 
 class Rank:
     def __init__(self, exp_cost, stat_gain):
         self.exp_cost = exp_cost
         self.stat_gain = stat_gain
+
 
 class RankGroup:
     def __init__(self, rank_array):
@@ -44,12 +47,14 @@ class RankGroup:
         return self.rank_array[rank-1]
 
     def get_cumulative_stat_gain(self, rank):
-        return sum([r.stat_gain for r in self.rank_array[:rank]])
+        return sum(r.stat_gain for r in self.rank_array[:rank])
+
 
 class Scaling:
     def __init__(self, base, stat):
         self.base = base
         self.stat = stat
+
 
 class Skill:
     # TODO mastery reward
@@ -69,7 +74,7 @@ class Skill:
         return self.rank_group.get_max_rank()
 
     def get_name_at_rank(self, rank):
-        return "{} {}".format(self.name, Roman.write(rank))
+        return f"{self.name} {Roman.write(rank)}"
 
     def get_name_rank(self):
         return self.get_name_at_rank(self.rank)
@@ -80,12 +85,15 @@ class Skill:
     def get_value(self, stat):
         return self.get_value_at_rank(self.rank, stat)
 
+
 class Actor:
     # resistances
-    def __init__(self, name, hp, mp, str, dex, con, int, wis, cha, skills):
+    def __init__(self, name, hp, max_hp, mp, max_mp, str, dex, con, int, wis, cha, skills):
         self.name = name
         self.hp = hp
+        self.max_hp = max_hp
         self.mp = mp
+        self.max_mp = max_mp
         self.str = str
         self.dex = dex
         self.con = con
@@ -113,27 +121,32 @@ class Actor:
             target.inc_hp(skill.get_value(self.get_stat(skill.scaling.stat)))
         self.dec_mp(skill.base_cost)
 
-    def inc_hp(self, hp):
-        self.hp += hp
+    def inc_hp(self, amount):
+        self.hp += max(self.hp + amount, self.max_hp)
 
-    def dec_hp(self, hp):
-        self.hp -= hp
+    def dec_hp(self, amount):
+        self.hp = max(self.hp - amount, 0)
 
-    def inc_mp(self, mp):
-        self.mp += mp
+    def inc_mp(self, amount):
+        self.mp += max(self.mp + amount, self.max_mp)
 
-    def dec_mp(self, mp):
-        self.mp -= mp
+    def dec_mp(self, amount):
+        self.mp = max(self.mp - amount, 0)
+
 
 skills = [
-    Skill("Fireball", 1, RankGroup([Rank(0, 0), Rank(25, 5), Rank(50, 4), Rank(100, 3)]), "attack", "fire", 1, 5, 5, Scaling(.2, "int"), "A fireball."),
-    Skill("Fire Shower", 1, RankGroup([Rank(0, 0), Rank(25, 5), Rank(50, 4), Rank(100, 3)]), "attack", "fire", 3, 10, 5, Scaling(.2, "int"), "A shower of fire."),
+    Skill("Fireball", 1, RankGroup([Rank(0, 0), Rank(25, 5), Rank(50, 4), Rank(
+        100, 3)]), "attack", "fire", 1, 5, 5, Scaling(.2, "int"), "A fireball."),
+    Skill("Fire Shower", 1, RankGroup([Rank(0, 0), Rank(25, 5), Rank(50, 4), Rank(
+        100, 3)]), "attack", "fire", 3, 10, 5, Scaling(.2, "int"), "A shower of fire."),
 ]
 
 char = Actor(
     name="Test",
     hp=50,
+    max_hp=50,
     mp=15,
+    max_mp=15,
     str=10,
     dex=10,
     con=10,
@@ -145,4 +158,4 @@ char = Actor(
 
 for skill in char.skills:
     for i in range(1, skill.get_num_ranks()+1):
-        print("{}: {}".format(skill.get_name_at_rank(i), skill.get_value_at_rank(i, char.get_stat(skill.scaling.stat))))
+        print(f"{skill.get_name_at_rank(i)}: {skill.get_value_at_rank(i, char.get_stat(skill.scaling.stat))}")
